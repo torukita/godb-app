@@ -57,7 +57,7 @@ var runCmd = &cobra.Command{
 				}
 				log.Warnf("[%s] db connection recovered again by reconnect=%d times", time.Now().Format(time.StampMilli), reconnect)
 				if err := db.AddMemo(fmt.Sprintf("reconnect data-%d", count), ""); err != nil {
-					log.Errorf("[%s] Failed data (%d) again. err", time.Now().Format(time.StampMilli), count, err)
+					log.Errorf("[%s] Failed data (%d) again. %s", time.Now().Format(time.StampMilli), count, err)
 				} else {
 					log.Infof("[%s] Added data (%d) after reconnection", time.Now().Format(time.StampMilli), count)
 					break
