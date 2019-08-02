@@ -7,7 +7,7 @@ import (
 	"github.com/torukita/godb-app/db"
 )
 
-var Version = "0.0.3"
+var Version = "0.0.6"
 var cfgFile string
 var envName string
 var logLevel string
@@ -43,7 +43,7 @@ func ConnectDB() error {
 		return err
 	}
 	log.SetLevel(level)
-	
+
 	if err := db.Load(cfgFile); err != nil {
 		return err
 	}

@@ -11,8 +11,8 @@ import (
 var runmode runConfig
 
 type runConfig struct {
-	Interval time.Duration
-	MaxCount int
+	Interval  time.Duration
+	MaxCount  int
 	ReConnect bool
 }
 
@@ -31,9 +31,9 @@ var runCmd = &cobra.Command{
 		count := 0
 		for {
 			count++
+			start := time.Now()
 			if err := db.AddMemo(fmt.Sprintf("data-%d", count), ""); err != nil {
-				log.Error(err)
-				log.Errorf("[%s] Add failed at count=%d", time.Now().Format(time.StampMilli), count)
+				log.Errorf("[%s] Failed data (%d). it started at [%s] %s", time.Now().Format(time.StampMilli), count, start.Format(time.StampMilli), err)
 				break
 			}
 			if max == 1 {
@@ -48,19 +48,18 @@ var runCmd = &cobra.Command{
 
 		if runmode.ReConnect && count != max { // failure happened during running
 			reconnect := 0
-			for ;; {
+			for {
 				reconnect++
 				if err := db.Connect(); err != nil {
 					log.Error(fmt.Sprintf("[%s] %s", time.Now().Format(time.StampMilli), err))
-					time.Sleep(1 * time.Second)
+					//					time.Sleep(1 * time.Second)
 					continue
 				}
 				log.Warnf("[%s] db connection recovered again by reconnect=%d times", time.Now().Format(time.StampMilli), reconnect)
 				if err := db.AddMemo(fmt.Sprintf("reconnect data-%d", count), ""); err != nil {
-					log.Error(err)
-					log.Errorf("Add failed at count=%d", count)
+					log.Errorf("[%s] Failed data (%d) again. err", time.Now().Format(time.StampMilli), count, err)
 				} else {
-					log.Infof("Added data after reconnection (%d)", count)
+					log.Infof("[%s] Added data (%d) after reconnection", time.Now().Format(time.StampMilli), count)
 					break
 				}
 			}

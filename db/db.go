@@ -1,17 +1,19 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"time"
 )
 
-const(
-	DBName = "sampledb"
+const (
+	DBName  = "sampledb"
 	DBTable = "sample_data"
 )
 
@@ -34,9 +36,9 @@ CREATE TABLE IF NOT EXISTS %s (
 );`
 
 var (
-	config map[string]DBConf = make(map[string]DBConf)
-	environment = "development"
-	dbx *sqlx.DB = &sqlx.DB{}
+	config      map[string]DBConf = make(map[string]DBConf)
+	environment                   = "development"
+	dbx         *sqlx.DB          = &sqlx.DB{}
 )
 
 type DBConf struct {
@@ -68,12 +70,13 @@ func SetEnv(name string) error {
 func Connect() error {
 	driver := config[environment].Driver
 	dsn := config[environment].Dsn
-
-	db, err := sqlx.Connect(driver, dsn)
-	if err != nil {
-		return err
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	db, err := sqlx.ConnectContext(ctx, driver, dsn)
 	dbx = db
+	if err != nil {
+		return errors.Wrap(err, "Connect")
+	}
 	return nil
 }
 
@@ -96,7 +99,7 @@ func (m Memo) Dump() {
 
 func DumpMemo() error {
 	sql := fmt.Sprintf("SELECT * from %s", DBTable)
-	rows, err := dbx.Queryx(sql)
+	rows, err := dbx.QueryxContext(context.TODO(), sql)
 	if err != nil {
 		return err
 	}
@@ -121,22 +124,25 @@ func DumpMemo() error {
 
 func AddMemo(memo, sub_memo string) error {
 	sql := fmt.Sprintf("INSERT INTO %s (memo, sub_memo) VALUES (?, ?)", DBTable)
-	_, err := dbx.Exec(dbx.Rebind(sql), memo, sub_memo)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	_, err := dbx.ExecContext(ctx, dbx.Rebind(sql), memo, sub_memo)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "AddMemo")
 	}
 	return nil
 }
 
 func DeleteMemos() error {
 	sql := fmt.Sprintf("TRUNCATE TABLE %s", DBTable)
-	_, err := dbx.Exec(sql)
+	_, err := dbx.ExecContext(context.TODO(), sql)
 	return err
 }
 
 func CountMemo() (count int) {
 	sql := fmt.Sprintf("SELECT COUNT(*) FROM %s", DBTable)
-	row := dbx.QueryRowx(sql)
+	row := dbx.QueryRowxContext(context.TODO(), sql)
 	row.Scan(&count)
 	return
 }
