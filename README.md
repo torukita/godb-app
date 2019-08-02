@@ -125,5 +125,22 @@ WARN[0048] [Aug  2 12:07:35.162] db connection recovered again by reconnect=6 ti
 INFO[0048] [Aug  2 12:07:35.173] Added data (17) after reconnection  (再接続後書き込めたので終了)
 ```
 
+mysqlの場合
 
+```
+DEBU[0019] Added data (20)
+DEBU[0020] Added data (21)
+DEBU[0021] Added data (22)
+DEBU[0022] Added data (23)
+DEBU[0023] Added data (24)
+ERRO[0026] [Aug  2 12:22:02.090] Failed data (25). it started at [Aug  2 12:22:00.090] AddMemo: context deadline exceeded <-- context timeoutが2secで有効になっている
+ERRO[0031] [Aug  2 12:22:07.091] Connect: dial tcp 10.5.15.54:3306: i/o timeout  <-- DSNでのtimeout指定のため
+ERRO[0036] [Aug  2 12:22:12.091] Connect: dial tcp 10.5.15.54:3306: i/o timeout
+ERRO[0041] [Aug  2 12:22:17.092] Connect: dial tcp 10.5.15.54:3306: i/o timeout
+ERRO[0046] [Aug  2 12:22:22.092] Connect: dial tcp 10.5.15.54:3306: i/o timeout
+ERRO[0051] [Aug  2 12:22:27.093] Connect: dial tcp 10.5.15.54:3306: i/o timeout
+ERRO[0056] [Aug  2 12:22:32.093] Connect: dial tcp 10.5.15.54:3306: i/o timeout
+WARN[0056] [Aug  2 12:22:32.110] db connection recovered again by reconnect=7 times  <-- 30secくらいで切り替わり
+INFO[0056] [Aug  2 12:22:32.116] Added data (25) after reconnection
+```
 
