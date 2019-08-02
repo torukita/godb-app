@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	_ "github.com/Kount/pq-timeouts"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -152,7 +153,7 @@ func CreateTable() error {
 	driver := config[environment].Driver
 	if driver == "mysql" {
 		sql = fmt.Sprintf(schemaMysql, DBTable)
-	} else if driver == "postgres" {
+	} else if driver == "postgres" || driver == "pq-timeouts" {
 		sql = fmt.Sprintf(schemaPostgres, DBTable)
 	}
 	_, err := dbx.Exec(sql)
